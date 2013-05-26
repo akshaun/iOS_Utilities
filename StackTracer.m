@@ -33,6 +33,7 @@
         self.regex = [NSRegularExpression regularExpressionWithPattern:@"([0-9]*)\\s*(\\S*)\\s*0x\\S* _*[0-9]*-?(\\[?.*\\]?).* \\+ "
                                                                options:0
                                                                  error:&error];
+        self.shouldLogFrameworkFrames = NO;
         if(error)
             NSLog(@"Regex fail: %@", error);
     }
@@ -47,9 +48,19 @@
     // flip the indexes and remove non-ultralingua stack frames
     NSMutableArray *mutableStack = [[NSMutableArray alloc] init];
     NSString *processName = [[NSProcessInfo processInfo] processName]; // used to screen out stack frames that aren't our code.
-    for(int i = stack.count - 3; i > 0; --i) { // chops off "start" and "main" and also "[StackTracer log]" at the other end
+    
+    NSInteger start = 0;
+    NSInteger stop = 1; // removes "[StackTracer log]"
+    if(self.shouldLogFrameworkFrames) {
+        start = stack.count - 1;
+    } else {
+        // chops off "start" and "main"
+        start = stack.count - 3;
+    }
+    
+    for(int i = start; i >= stop; --i) {
         NSString *frame = [stack objectAtIndex:i];
-        if([frame rangeOfString:processName].location != NSNotFound) {
+        if(self.shouldLogFrameworkFrames || [frame rangeOfString:processName].location != NSNotFound) {
             NSTextCheckingResult *result = [self.regex firstMatchInString:frame
                                                                   options:0
                                                                     range:NSMakeRange(0, frame.length)];

@@ -10,6 +10,8 @@
 
 @interface StackTracer : NSObject
 
+@property(assign) BOOL shouldLogFrameworkFrames;
+
 + (StackTracer *)sharedInstance;
 - (void)log:(NSString*)commentOrNil;
 - (void)clear;
