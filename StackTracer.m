@@ -7,6 +7,7 @@
 //
 
 #import "StackTracer.h"
+#import "StackTracerFrame.h"
 
 @interface StackTracer ()
 @property(strong) NSArray *lastTrace;
@@ -64,14 +65,13 @@
                 methodName = [frame substringWithRange:methodRange];
             }
             
-            [mutableStack addObject:methodName];
+            
+            [mutableStack addObject:[[StackTracerFrame alloc] initWithFrame:methodName comment:nil]];
         }
     }
     if(comment) {
-        NSString *lastFrame = [mutableStack lastObject];
-        [mutableStack removeLastObject];
-        lastFrame = [NSString stringWithFormat:@"%@\t%@", lastFrame, comment];
-        [mutableStack addObject:lastFrame];
+        StackTracerFrame *lastFrame = [mutableStack lastObject];
+        [lastFrame addComment:comment];
     }
     return mutableStack;
 }
@@ -79,7 +79,9 @@
 - (NSInteger)firstDifferentIndexStackOne:(NSArray*)stackOne stackTwo:(NSArray*)stackTwo {
     NSInteger limit = MIN(stackOne.count, stackTwo.count);
     for(NSInteger i = 0; i < limit; ++i) {
-        if(![[stackOne objectAtIndex:i] isEqualToString:[stackTwo objectAtIndex:i]])
+        StackTracerFrame *one = [stackOne objectAtIndex:i];
+        StackTracerFrame *two = [stackTwo objectAtIndex:i];
+        if(![one isEqual:two])
             return i;
     }
     
@@ -95,19 +97,23 @@
     
     // special case where we log the same stack twice in a row.
     // log the last frame a second time
-    if(firstDifferentIndex == stack.count) {
-        firstDifferentIndex--;
-    }
+    BOOL isRepeat = firstDifferentIndex == stack.count;
     
     NSMutableString *indent = [[NSMutableString alloc] init];
-    for(NSInteger i = 0; i < firstDifferentIndex; ++i) {
+    for(NSInteger i = 0; i < firstDifferentIndex && i < stack.count; ++i) {
         [indent appendString:@"|\t"];
     }
     
     for(NSInteger i = firstDifferentIndex; i < stack.count; ++i) {
-        NSString *frame = [stack objectAtIndex:i];
-        NSLog(@"%@%@", indent, frame);
+        StackTracerFrame *frame = [stack objectAtIndex:i];
+        NSLog(@"%@%@", indent, frame.frame);
+        for(NSString *comment in frame.comments)
+            NSLog(@"%@|\t// %@", indent, comment);
         [indent appendString:@"|\t"];
+    }
+    
+    if(isRepeat) {
+        NSLog(@"%@// %@", indent, commentOrNil);
     }
     
     self.lastTrace = stack;
@@ -116,11 +122,14 @@
 #pragma mark test methods
 
 - (void)runTest {
-    [self log:@"run"];
+    [self log:@"comment one"];
+    [self log:@"comment two"];
     [self one];
+    [self log:@"comment three"];
+    [self log:nil];
+    [self log:@"comment five"];
     [self two];
     [self one];
-    [self log:@"same frame"];
 }
 
 - (void)one {
@@ -136,7 +145,7 @@
 }
 
 - (void)three {
-    [self log:@"test!"];
+    [self log:@"three!"];
 }
 
 @end
