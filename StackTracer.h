@@ -6,6 +6,10 @@
 //  Copyright (c) 2013 Shaun Reynolds. All rights reserved.
 //
 
+// This will match the part of NSLog you want to chop off (date, thread number, etc)
+// "[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:]*\.[0-9]{1,4} [a-zA-Z]*\[.*\] "
+
+
 #import <Foundation/Foundation.h>
 
 @interface StackTracer : NSObject
