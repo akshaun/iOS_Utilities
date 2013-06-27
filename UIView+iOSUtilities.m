@@ -11,22 +11,25 @@
 
 @implementation UIView (iOSUtilities)
 
-- (CGRect)frameAlignedToPixels {
-    CGRect f = self.frame;
++ (CGRect)alignFrameToPixels:(CGRect)frame {
     if(IS_RETINA()) {
         // half points are ok
-        f.origin.x = floorf(f.origin.x * 2) / 2.0f;
-        f.origin.y = floorf(f.origin.y * 2) / 2.0f;
-        f.size.width = floorf(f.size.width * 2) / 2.0f;
-        f.size.height = floorf(f.size.height * 2) / 2.0f;
+        frame.origin.x = floorf(frame.origin.x * 2) / 2.0f;
+        frame.origin.y = floorf(frame.origin.y * 2) / 2.0f;
+        frame.size.width = floorf(frame.size.width * 2) / 2.0f;
+        frame.size.height = floorf(frame.size.height * 2) / 2.0f;
     } else {
         // points == pixels, round everything off
-        f.origin.x = floorf(f.origin.x);
-        f.origin.y = floorf(f.origin.y);
-        f.size.width = floorf(f.size.width);
-        f.size.height = floorf(f.size.height);
+        frame.origin.x = floorf(frame.origin.x);
+        frame.origin.y = floorf(frame.origin.y);
+        frame.size.width = floorf(frame.size.width);
+        frame.size.height = floorf(frame.size.height);
     }
-    return f;
+    return frame;
+}
+
+- (CGRect)frameAlignedToPixels {
+    return [UIView alignFrameToPixels:self.frame];
 }
 
 @end

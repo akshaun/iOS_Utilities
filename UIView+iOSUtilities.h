@@ -13,8 +13,9 @@
 // lines of code like this can create frames that are not aligned to points....
 // CGRect f = CGRectMake(0, 0, superview.bounds.size.height / 2.0, superview.bounds.size.width / 2.0);
 //
-// This is ok on retina devices, but on non retina devices we end up with blurry views.
+// Half points are ok on retina devices, but on non retina devices we end up with blurry views.
 // This method adjusts a frame (rounds down) to ensure no blurryness.
++ (CGRect)alignFrameToPixels:(CGRect)frame;
 - (CGRect)frameAlignedToPixels;
 
 @end
