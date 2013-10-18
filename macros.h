@@ -18,3 +18,4 @@ static inline BOOL IS_PHONE() {
     return [[UIDevice currentDevice] respondsToSelector:@selector(userInterfaceIdiom)] && [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone;
 }
 
+#define ABSTRACT_BASE [NSException raise:@"Abstract Base Method" format:@"%@ must be overridden by %@", NSStringFromSelector(_cmd), NSStringFromClass([self class])]
